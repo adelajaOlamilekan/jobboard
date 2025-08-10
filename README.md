@@ -1,4 +1,4 @@
-# 📌 Job Board API
+# Job Board API
 
 A production-ready RESTful backend built with **FastAPI** for managing job postings, applications, and role-based access for companies and applicants.
 
@@ -6,7 +6,7 @@ This API implements **authentication, authorization, email verification, file up
 
 ---
 
-## ✨ Features
+## Features
 
 - **User Authentication & Email Verification** (JWT-based auth)
 - **Role-Based Access Control**
@@ -32,18 +32,36 @@ This API implements **authentication, authorization, email verification, file up
 | Migrations   | Alembic          |
 | Auth         | JWT (PyJWT)      |
 | File Upload  | Cloudinary SDK   |
-| Email        | SMTP / API-based |
+| Email        | SMTP
 | Env Vars     | python-dotenv    |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### 1️⃣ Clone the Repository
-```bash
+### Clone the Repository
+```
 git clone https://github.com/your-username/jobboard-api.git
 cd jobboard-api
 ```
+
+### Create a virtual environment
+```
+python3 -m venv .venv
+source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Configure the Environment Variables
+
+### Run Database Migration
+
+```alembic upgrade head```
+
+### Start the Server
+
+```uvicorn app.main:app --reload```
+
 
 
 SWAGGER LINK: https://jobboard-qnmf.onrender.com/docs

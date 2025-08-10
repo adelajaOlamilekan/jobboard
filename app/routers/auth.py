@@ -14,7 +14,8 @@ def signup(payload: schemas.SignupIn, background_tasks: BackgroundTasks, db: Ses
     # uniqueness
     existing = crud.get_user_by_email(db, payload.email)
     if existing:
-        return {"success": False, "message": "Email already exists", "object": None, "errors": ["email already exists"]}
+        respone_data = {"success": False, "message": "Email already exists", "object": None, "errors": ["email already exists"]}
+        return JSONResponse(content=respone_data, status_code=status.HTTP_409_CONFLICT)
     password_hash = auth_lib.hash_password(payload.password)
     user = crud.create_user(db, payload.full_name, payload.email, password_hash, payload.role)
     token = crud.create_email_token(db, user.id)

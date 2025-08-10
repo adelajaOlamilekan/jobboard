@@ -60,9 +60,11 @@ def verify_email(token: str, background_tasks: BackgroundTasks, db: Session = De
 def login(payload: schemas.LoginIn, db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, payload.email)
     if not user:
-        return {"success": False, "message":"Invalid credentials", "object": None, "errors":["invalid credentials"]}
+        response_data = {"success": False, "message":"Invalid credentials", "object": None, "errors":["invalid credentials"]}
+        return JSONResponse(content=response_data, status_code=status.HTTP_404_NOT_FOUND)
     if not auth_lib.verify_password(payload.password, user.password_hash):
-        return {"success": False, "message":"Invalid credentials", "object": None, "errors":["invalid credentials"]}
+        response_data = {"success": False, "message":"Invalid credentials", "object": None, "errors":["invalid credentials"]}
+        return JSONResponse(content=response_data, status_code=status.HTTP_404_NOT_FOUND)
     # create JWT
     token = auth_lib.create_access_token({"user_id": str(user.id), "role": user.role.value})
     return {"success": True, "message":"Login successful", "object":{"access_token": token, "token_type":"bearer"}, "errors": None}

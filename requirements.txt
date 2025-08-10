@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+SQLAlchemy>=1.4
+alembic
+psycopg2-binary
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic
+python-multipart
+cloudinary
+email-validator
+python-dotenv
+itsdangerous
+requests

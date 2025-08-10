@@ -32,7 +32,8 @@ def apply_job(job_id: str, cover_letter: str = None, resume: UploadFile = File(.
     if resume.content_type not in allowed:
         return {"success": False, "message":"Unsupported file format", "object": None, "errors":["only pdf and docx allowed"]}
     # upload resume to cloudinary
-    uploaded_url = upload_resume_file(resume.file, f"resume_{current_user.id}_{job.id}")
+    extension = resume.content_type[resume.content_type.index("/")+1:]
+    uploaded_url = upload_resume_file(resume.file, f"resume_{current_user.id}_{job.id}.{extension}")
     app = crud.create_application(db, current_user.id, job.id, uploaded_url, cover_letter)
     # send email to company
     company = db.query(models.User).filter(models.User.id == job.created_by).first()
@@ -58,7 +59,8 @@ def my_applications(page: int = 1, size: int = 10, company_name: str = None, job
         "applied_at": models.Application.applied_at,
         "company_name": models.User.full_name,
         "application_status": models.Application.status,
-        "job_title": models.Job.title
+        "job_title": models.Job.title,
+        "application_id": models.Application.id
     }.get(sort_by, models.Application.applied_at)
     if order.lower() == "desc":
         ordering = ordering.desc()
@@ -97,7 +99,8 @@ def view_job_applications(job_id: str, status: str = None, page: int = 1, size: 
             "resume_link": a.resume_link,
             "cover_letter": a.cover_letter,
             "status": a.status.value,
-            "applied_at": a.applied_at.isoformat()
+            "applied_at": a.applied_at.isoformat(),
+            "application_id": a.id
         })
     return {"success": True, "message":"Applications fetched", "object": out, "pageNumber": page, "pageSize": size, "totalSize": total, "errors": None}
 

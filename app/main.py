@@ -8,5 +8,5 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Job Board API")
 
 app.include_router(auth.router)
-# app.include_router(jobs.router)
+app.include_router(jobs.router)
 # app.include_router(applications.router)

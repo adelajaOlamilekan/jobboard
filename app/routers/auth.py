@@ -5,7 +5,7 @@ from .. import schemas, crud, auth as auth_lib
 from ..db import get_db
 from ..email_utils import send_email_background
 from ..config import settings
-from ..models import RoleEnum
+from ..models import RoleEnum, User
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -35,22 +35,26 @@ def verify_email(token: str, background_tasks: BackgroundTasks, db: Session = De
     if record.expires_at < datetime.utcnow():
         # token expired -> generate new token and send email
         new_token = crud.create_email_token(db, record.user_id)
-        user = db.query(models.User).filter(models.User.id == record.user_id).first()
-        link = f"{settings.FRONTEND_BASE_URL}/api/verify-email?token={new_token.token}"
-        html = f"<p>Your verification link expired. Click <a href='{link}'>here</a> to verify.</p>"
+        user = db.query(User).filter(User.id == record.user_id).first()
+        # link = f"{settings.FRONTEND_BASE_URL}/api/verify-email?token={new_token.token}"
+        print(f"New_token:{token}")
+        html = f"<p>Your verification token expired. Use this new token {new_token} to verify.</p>"
         send_email_background(background_tasks, user.email, "New verification link", html)
         # delete old token
         crud.delete_token(db, token)
-        return {"success": False, "message": "Token expired. A new verification email was sent.", "object": None, "errors": ["token expired - new email sent"]}
+        response_data = {"success": False, "message": "Token expired. A new verification email was sent.", "object": None, "errors": ["token expired - new email sent"]}
+        return JSONResponse(content=response_data, status_code=status.HTTP_200_OK)
     # token valid
-    user = db.query(models.User).filter(models.User.id == record.user_id).first()
+    user = db.query(User).filter(User.id == record.user_id).first()
     if user.is_verified:
-        return {"success": True, "message": "Email already verified", "object": {"user_id": str(user.id)}, "errors": None}
+        response_data = {"success": True, "message": "Email already verified", "object": {"user_id": str(user.id)}, "errors": None}
+        return JSONResponse(content=response_data, status_code=status.HTTP_200_OK)
     user.is_verified = 1
     db.add(user)
     db.commit()
     crud.delete_token(db, token)
-    return {"success": True, "message": "Email verified successfully", "object": {"user_id": str(user.id)}, "errors": None}
+    response_data = {"success": True, "message": "Email verified successfully", "object": {"user_id": str(user.id)}, "errors": None}
+    return JSONResponse(content=response_data, status_code=status.HTTP_200_OK)
 
 @router.post("/login", response_model=schemas.BaseResponse)
 def login(payload: schemas.LoginIn, db: Session = Depends(get_db)):

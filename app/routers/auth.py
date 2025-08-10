@@ -31,7 +31,9 @@ def signup(payload: schemas.SignupIn, background_tasks: BackgroundTasks, db: Ses
 def verify_email(token: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     record = crud.get_token(db, token)
     if not record:
-        return {"success": False, "message":"Token invalid or malformed", "object": None, "errors": ["invalid token"]}
+        response_data = {"success": False, "message":"Token invalid or malformed", "object": None, "errors": ["invalid token"]}
+        return JSONResponse(content=response_data, status_code=status.HTTP_400_BAD_REQUEST)
+    
     from datetime import datetime
     if record.expires_at < datetime.utcnow():
         # token expired -> generate new token and send email
